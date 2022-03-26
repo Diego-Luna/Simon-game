@@ -27,6 +27,7 @@ NeoDigito display_green =  NeoDigito(DIGITS, PIXPERSEG, PIN_GREEN, NEO_RGB + NEO
 NeoDigito display_yellow =  NeoDigito(DIGITS, PIXPERSEG, PIN_YELLOW, NEO_RGB + NEO_KHZ800);
 
 // -> Buttons
+int button_on = 13;
 int button_red = 7;
 int button_blue = 6;
 int button_green = 5;
@@ -34,14 +35,15 @@ int button_yellow = 4;
 
 const int pinBuzzer = 12;
 
-int array_bottons[255] = {0};
+int array_bottons[25] = {0};
 byte level = 1;
 byte button_click = 0; // 0, 1 - red, 2 - blue, 3 - green, 4 - yellow
 
 void setup() {
 
   Serial.begin(9600);
-  
+
+  pinMode(button_on, INPUT);
   pinMode(button_red, INPUT);
   pinMode(button_blue, INPUT);
   pinMode(button_green, INPUT);
@@ -51,23 +53,81 @@ void setup() {
   display_blue.begin();
   display_green.begin();
   display_yellow.begin();
-
-  display_red.setPixelColor(255, 0, 0);
-  display_blue.setPixelColor(0, 0, 255);
-  display_green.setPixelColor(0, 255, 0);
-  display_yellow.setPixelColor(255, 255, 0);
-
 }
 
 void loop() {
-  int i = level;
-  while (i > 0)
+  int on = 1;
+  on = digitalRead(button_on);
+  if (on || level > 1)
   {
     ft_generate_number();
-    i--;
+    delay(1000);
+    ft_check();
   }
+}
+void  ft_check()
+{
+  int i;
+  while (array_bottons[i] != 0 && i < 25 )
+  {
+    if (!ft_check_number(array_bottons[i], 2500))
+    {
+      ft_restart();
+      break;
+    }
+    i++;
+  }
+}
 
 
+bool  ft_check_number(int b, int limit_time)
+{
+  unsigned long my_time;
+  unsigned long my_limit;
+
+  my_time = millis();
+  my_limit = millis() + limit_time;
+  while (my_time <= my_limit)
+  {
+    button_click = ft_button_color();
+    if (button_click != 0 && button_click == b) return true;
+    if (button_click != 0 && button_click != b) return false;
+    my_time = millis();
+  }
+  button_click = 0;
+  return false;
+}
+
+int ft_button_color()
+{
+  int b_red = digitalRead(button_red);
+  int b_blue = digitalRead(button_blue);
+  int b_green = digitalRead(button_green);
+  int b_yellow = digitalRead(button_yellow);
+
+  // 0, 1 - red, 2 - blue, 3 - green, 4 - yellow
+  if (b_red) 
+  {
+    ft_neo_pixel_color_and_buzzer(1, 1000);
+    return 1;
+  }
+  if (b_blue) return 2;
+  if (b_green) return 3;
+  if (b_yellow) return 4;
+
+  return 0;
+}
+
+void  ft_restart()
+{
+  int i = 0;
+  while (array_bottons[i] > 0 && i < 25 )
+  {
+    array_bottons[i] = 0;
+    i++;
+  }
+  level = 1;
+  button_click = 0;
 }
 
 void  ft_generate_number()
@@ -75,52 +135,69 @@ void  ft_generate_number()
   byte generate_number = random(1, 5);
   int i = 0;
 
-  while (array_bottons[i] != 0 && i < 255 )
+  while (array_bottons[i] != 0 && i < 25 )
   {
     i++;
   }
   array_bottons[i] = generate_number;
-  ft_neo_pixel_color_and_buzzer(generate_number, 1500);
 
+  Serial.print("Numero aleatorio: ");
+  Serial.println(generate_number);
 
+  i = 0;
+  while (array_bottons[i] != 0 && i < 25 )
+  {
+    Serial.print("-> secuenci : ");
+    Serial.println(array_bottons[i]);
+    ft_neo_pixel_color_and_buzzer(array_bottons[i], 2500);
+    ft_neo_pixel_color_and_buzzer(0, 1000);
+    i++;
+  }
 }
 
 void  ft_neo_pixel_color_and_buzzer(byte color, int time_color)
 {
-  switch(color){
+  switch (color) {
     case 1:
+      display_red.setPixelColor(0x008000);
       display_red.print("8");
       tone(pinBuzzer, 261);
       break;
     case 2:
+      display_blue.setPixelColor(0x0000FF);
       display_blue.print("8");
       tone(pinBuzzer, 277);
       break;
     case 3:
+      display_green.setPixelColor(0xFF0000);
       display_green.print("8");
       tone(pinBuzzer, 294);
       break;
     case 4:
+      display_yellow.setPixelColor(0xFFFF00);
       display_yellow.print("8");
       tone(pinBuzzer, 311);
       break;
     default:
-      Serial.print("Error en ft_neo_pixel_color_and_buzzer: ");
-      Serial.println(color);
       break;
   }
+
   display_red.show();
+  display_blue.show();
+  display_green.show();
+  display_yellow.show();
+
   delay(time_color);
 
   display_red.clear();
   display_red.show();
-  
+
   display_blue.clear();
   display_blue.show();
-  
+
   display_green.clear();
   display_green.show();
-  
+
   display_yellow.clear();
   display_yellow.show();
 
