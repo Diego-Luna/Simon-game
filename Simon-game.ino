@@ -41,7 +41,7 @@ byte button_click = 0; // 0, 1 - red, 2 - blue, 3 - green, 4 - yellow
 
 void setup() {
 
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   pinMode(button_on, INPUT);
   pinMode(button_red, INPUT);
@@ -72,15 +72,15 @@ void  ft_check()
   i = 0;
   while (array_bottons[i] != 0 && i < 25 )
   {
-    Serial.print("--> El boton a pretar :");
-    Serial.println(array_bottons[i]);
+    //Serial.print("--> El boton a pretar :");
+    //Serial.println(array_bottons[i]);
     if (!ft_check_number(array_bottons[i], 3000))
     {
-      Serial.println("No se apreto");
+      //Serial.println("No se apreto");
       ft_restart();
       break;
     }
-    Serial.println("Se apreto");
+    //Serial.println("Se apreto");
     i++;
   }
   level++;
@@ -97,8 +97,8 @@ bool  ft_check_number(int b, int limit_time)
   while (my_time <= my_limit)
   {
     button_click = ft_button_color(1000);
-    Serial.print("---> Valor de button_click: ");
-    Serial.println(button_click);
+    //Serial.print("---> Valor de button_click: ");
+    //Serial.println(button_click);
     if (button_click != 0 && button_click == b) return true;
     if (button_click != 0 && button_click != b) return false;
     my_time = millis();
@@ -114,7 +114,6 @@ int ft_button_color(int color_time)
   int b_green = digitalRead(button_green);
   int b_yellow = digitalRead(button_yellow);
 
-  // 0, 1 - red, 2 - blue, 3 - green, 4 - yellow
   if (b_red)
   {
     ft_neo_pixel_color_and_buzzer(1, color_time);
@@ -162,14 +161,14 @@ void  ft_generate_number()
   }
   array_bottons[i] = generate_number;
 
-  Serial.print("Numero aleatorio: ");
-  Serial.println(generate_number);
+  //Serial.print("Numero aleatorio: ");
+  //Serial.println(generate_number);
 
   i = 0;
   while (array_bottons[i] != 0 && i < 25 )
   {
-    Serial.print("-> secuenci : ");
-    Serial.println(array_bottons[i]);
+    //Serial.print("-> secuenci : ");
+    //Serial.println(array_bottons[i]);
     ft_neo_pixel_color_and_buzzer(array_bottons[i], 1500);
     ft_neo_pixel_color_and_buzzer(0, 1000);
     i++;
