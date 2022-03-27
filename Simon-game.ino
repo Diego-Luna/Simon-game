@@ -69,6 +69,7 @@ void loop() {
 void  ft_check()
 {
   int i;
+  i = 0;
   while (array_bottons[i] != 0 && i < 25 )
   {
     Serial.print("--> El boton a pretar :");
